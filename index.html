@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClauseGuard — AI Contract Reviewer for Freelancers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F4F6FA;
+      color: #111827;
+      line-height: 1.5;
+    }
+
+    :root {
+      --primary: #1B3A6B;
+      --accent: #00C896;
+      --high-risk: #E84040;
+      --medium-risk: #F5A623;
+      --low-risk: #00C896;
+      --bg: #F4F6FA;
+      --card: #FFFFFF;
+      --text-primary: #111827;
+      --text-secondary: #6B7280;
+    }
+
+    nav {
+      background: white;
+      border-bottom: 1px solid #E5E7EB;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--primary);
+    }
+
+    .nav-brand svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .nav-cta {
+      background: white;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .nav-cta:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .page { display: none; min-height: calc(100vh - 70px); animation: fadeIn 0.3s ease-in; }
+    .page.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 80px 24px 60px;
+      text-align: center;
+    }
+
+    .hero-headline {
+      font-size: 48px;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-subheadline {
+      font-size: 18px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 32px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-cta {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 24px;
+    }
+
+    .hero-cta:hover {
+      background: #142A52;
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px rgba(27, 58, 107, 0.25);
+    }
+
+    .trust-signals {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .trust-signal {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .urgency-line {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 48px;
+    }
+
+    .feature-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .feature-card {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      text-align: center;
+      transition: all 0.3s;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .feature-card:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      transform: translateY(-4px);
+    }
+
+    .feature-icon { font-size: 32px; margin-bottom: 12px; }
+    .feature-title { font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+    .feature-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+
+    .upload-container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 60px 24px;
+    }
+
+    .upload-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-align: center;
+      color: var(--text-primary);
+    }
+
+    .upload-subtitle {
+      text-align: center;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      font-size: 14px;
+    }
+
+    .upload-zone {
+      border: 2px dashed var(--primary);
+      border-radius: 12px;
+      padding: 60px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: rgba(27, 58, 107, 0.02);
+    }
+
+    .upload-zone:hover {
+      border-color: var(--accent);
+      background: rgba(0, 200, 150, 0.04);
+    }
+
+    .upload-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(0, 200, 150, 0.08);
+      transform: scale(1.02);
+    }
+
+    .upload-icon { font-size: 48px; margin-bottom: 16px; }
+    .upload-text { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+    .upload-formats { font-size: 14px; color: var(--text-secondary); }
+
+    .upload-input { display: none; }
+
+    .paste-toggle {
+      text-align: center;
+      margin: 32px 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .paste-toggle button {
+      background: none;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: underline;
+      font-size: 14px;
+    }
+
+    .paste-area { display: none; margin-top: 16px; }
+    .paste-area.active { display: block; animation: fadeIn 0.3s ease-in; }
+
+    .paste-textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 16px;
+      border: 1px solid #D1D5DB;
+      border-radius: 8px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 13px;
+      resize: vertical;
+      transition: all 0.2s;
+    }
+
+    .paste-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(27, 58, 107, 0.1);
+    }
+
+    .privacy-note {
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin: 24px 0;
+    }
+
+    .upload-button {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 24px;
+    }
+
+    .upload-button:hover:not(:disabled) {
+      background: #142A52;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(27, 58, 107, 0.3);
+    }
+
+    .upload-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 70px);
+      padding: 24px;
+    }
+
+    .loading-shield {
+      font-size: 80px;
+      margin-bottom: 32px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .loading-text {
+      font-size: 24px;
+      color: var(--text-primary);
+      font-weight: 600;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    .loading-messages {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: 24px;
+      min-height: 18px;
+    }
+
+    .progress-bar {
+      width: 200px;
+      height: 4px;
+      background: #E5E7EB;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      animation: progress 2.5s ease-in-out infinite;
+    }
+
+    @keyframes progress {
+      0% { width: 0%; }
+      50% { width: 70%; }
+      100% { width: 100%; }
+    }
+
+    .results-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+
+    .risk-score-section {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .risk-shield {
+      font-size: 120px;
+      margin: 0 auto 24px;
+      display: inline-block;
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+      animation: slideDown 0.6s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .risk-score-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .risk-score-number {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .risk-verdict {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.6;
+      color: var(--text-primary);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .verdict-high { color: var(--high-risk); }
+    .verdict-medium { color: var(--medium-risk); }
+    .verdict-low { color: var(--low-risk); }
+
+    .summary-section {
+      background: white;
+      padding: 32px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .summary-text {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .summary-bullets {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .summary-bullet {
+      padding: 12px 16px;
+      background: #F9FAFB;
+      border-left: 3px solid var(--primary);
+      border-radius: 4px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .flagged-section { margin-bottom: 32px; }
+
+    .clause-card {
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s;
+    }
+
+    .clause-card:hover { box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); }
+
+    .clause-card.high-risk { border-left: 4px solid var(--high-risk); }
+    .clause-card.medium-risk { border-left: 4px solid var(--medium-risk); }
+    .clause-card.watch-risk { border-left: 4px solid #FCD34D; }
+
+    .clause-header {
+      padding: 20px;
+      background: white;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .clause-header:hover { background: #F9FAFB; }
+
+    .clause-header-left { flex: 1; }
+
+    .clause-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .badge-high {
+      background: rgba(232, 64, 64, 0.1);
+      color: var(--high-risk);
+    }
+
+    .badge-medium {
+      background: rgba(245, 166, 35, 0.1);
+      color: var(--medium-risk);
+    }
+
+    .badge-watch {
+      background: rgba(252, 211, 52, 0.1);
+      color: #D97706;
+    }
+
+    .clause-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .clause-toggle {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: transform 0.3s;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .clause-toggle.open { transform: rotate(180deg); }
+
+    .clause-content { display: none; padding: 24px; border-top: 1px solid rgba(0, 0, 0, 0.05); background: #F9FAFB; }
+    .clause-content.active { display: block; animation: fadeIn 0.3s ease-in; }
+
+    .clause-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .clause-original {
+      background: white;
+      border: 1px solid #E5E7EB;
+      padding: 12px;
+      border-radius: 8px;
+      font-style: italic;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .plain-english {
+      padding: 12px;
+      background: rgba(0, 200, 150, 0.05);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+
+    .why-risky {
+      padding: 12px;
+      background: rgba(232, 64, 64, 0.05);
+      border-left: 3px solid var(--high-risk);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .ai-suggestion {
+      background: rgba(0, 200, 150, 0.08);
+      border: 1px solid var(--accent);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+
+    .ai-suggestion-label {
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .safe-section {
+      background: white;
+      padding: 32px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .safe-list { display: grid; grid-template-columns: 1fr; gap: 12px; }
+
+    .safe-item {
+      padding: 12px;
+      background: #F9FAFB;
+      border-radius: 8px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .safe-item-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .negotiation-section {
+      background: linear-gradient(135deg, rgba(27, 58, 107, 0.05) 0%, rgba(0, 200, 150, 0.05) 100%);
+      padding: 32px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+      border: 1px solid rgba(27, 58, 107, 0.1);
+    }
+
+    .negotiation-items { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
+
+    .negotiation-item {
+      background: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border-left: 3px solid var(--primary);
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+
+    .negotiation-footer {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .unlock-cta {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+      margin-top: 12px;
+    }
+
+    .unlock-cta:hover {
+      background: #142A52;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(27, 58, 107, 0.3);
+    }
+
+    .paywall-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .paywall-overlay.active { display: flex; }
+
+    .paywall-modal {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .paywall-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      float: right;
+      transition: color 0.2s;
+    }
+
+    .paywall-close:hover { color: var(--text-primary); }
+
+    .paywall-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      clear: both;
+    }
+
+    .paywall-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    .pricing-options { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 32px; }
+
+    .pricing-option {
+      border: 2px solid #E5E7EB;
+      border-radius: 10px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .pricing-option:hover { border-color: var(--primary); background: rgba(27, 58, 107, 0.02); }
+
+    .pricing-option.selected {
+      border-color: var(--primary);
+      background: rgba(27, 58, 107, 0.05);
+    }
+
+    .pricing-radio {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .pricing-radio.checked::after {
+      content: '';
+      width: 10px;
+      height: 10px;
+      background: var(--primary);
+      border-radius: 50%;
+    }
+
+    .pricing-amount {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .pricing-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .pricing-badge {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+
+    .paywall-cta {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 16px;
+    }
+
+    .paywall-cta:hover {
+      background: #142A52;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(27, 58, 107, 0.3);
+    }
+
+    .paywall-testimonial {
+      background: #F9FAFB;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .testimonial-text { font-style: italic; margin-bottom: 8px; }
+    .testimonial-author { font-weight: 600; color: var(--primary); }
+
+    .paywall-disclaimer {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    .locked-content {
+      opacity: 0.5;
+      pointer-events: none;
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .locked-banner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(4px);
+      border-radius: 12px;
+      z-index: 100;
+    }
+
+    .locked-icon { font-size: 32px; margin-bottom: 8px; }
+    .locked-text { font-weight: 600; color: var(--primary); margin-bottom: 12px; font-size: 14px; }
+
+    .locked-unlock-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 13px;
+    }
+
+    .locked-unlock-btn:hover {
+      background: #142A52;
+      transform: translateY(-2px);
+    }
+
+    footer {
+      background: white;
+      border-top: 1px solid #E5E7EB;
+      padding: 32px 24px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-top: 48px;
+    }
+
+    footer strong { color: var(--primary); }
+
+    @media (max-width: 768px) {
+      .hero-headline { font-size: 32px; }
+      .hero-subheadline { font-size: 16px; }
+      .risk-shield { font-size: 80px; }
+      .risk-score-number { font-size: 36px; }
+      .feature-cards { grid-template-columns: 1fr; }
+      .trust-signals { flex-direction: column; gap: 8px; }
+      nav { flex-direction: column; gap: 12px; }
+      .paywall-modal { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2c5.5 0 10 4.5 10 10s-4.5 10-10 10S2 17.5 2 12 6.5 2 12 2m0-2C6 0 1 5 1 11s5 11 11 11 11-5 11-11S18 0 12 0z"/>
+    </svg>
+    ClauseGuard
+  </div>
+  <button class="nav-cta" onclick="showPage('landing')">Review a Contract</button>
+</nav>
+
+<!-- LANDING PAGE -->
+<div class="page active" id="landing-page">
+  <div class="hero">
+    <h1 class="hero-headline">Don't Sign Until ClauseGuard Reads It First</h1>
+    <p class="hero-subheadline">Upload your contract and our AI flags every risky clause, explains what it means in plain English, and tells you exactly what to negotiate — in under 60 seconds.</p>
+    <button class="hero-cta" onclick="showPage('upload')">Review My Contract Free →</button>
+
+    <div class="trust-signals">
+      <div class="trust-signal">✓ Instant AI Analysis</div>
+      <div class="trust-signal">✓ Plain English Explanations</div>
+      <div class="trust-signal">✓ No Legal Jargon</div>
+    </div>
+
+    <div class="urgency-line">✓ Used by 3,400+ freelancers to avoid bad deals</div>
+
+    <div class="feature-cards">
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <div class="feature-title">Risk Detection</div>
+        <div class="feature-desc">Flags clauses that could cost you money or freedom</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📝</div>
+        <div class="feature-title">Plain English</div>
+        <div class="feature-desc">Translates legal jargon into language you actually understand</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✨</div>
+        <div class="feature-title">Smart Suggestions</div>
+        <div class="feature-desc">Get AI-recommended rewrites for every risky clause</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- UPLOAD PAGE -->
+<div class="page" id="upload-page">
+  <div class="upload-container">
+    <h2 class="upload-title">Upload Your Contract</h2>
+    <p class="upload-subtitle">We'll analyze it instantly and flag every risky clause</p>
+
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('uploadInput').click()">
+      <div class="upload-icon">📄</div>
+      <div class="upload-text">Drop your contract here or click to upload</div>
+      <div class="upload-formats">PDF, DOCX, or TXT</div>
+    </div>
+
+    <input type="file" id="uploadInput" class="upload-input" accept=".pdf,.docx,.txt">
+
+    <div class="paste-toggle">
+      Or <button onclick="togglePasteArea()">paste your contract text directly →</button>
+    </div>
+
+    <div class="paste-area" id="pasteArea">
+      <textarea class="paste-textarea" id="pasteTextarea" placeholder="Paste your contract text here..."></textarea>
+    </div>
+
+    <div class="privacy-note">🔒 Your contract is private. We never store or share it.</div>
+
+    <button class="upload-button" id="uploadButton" onclick="analyzeContract()" disabled>Analyze My Contract →</button>
+  </div>
+</div>
+
+<!-- LOADING PAGE -->
+<div class="page" id="loading-page">
+  <div class="loading-container">
+    <div class="loading-shield">🛡️</div>
+    <div class="loading-text">Analyzing Your Contract</div>
+    <div class="loading-messages" id="loadingMessage">Reading your contract...</div>
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS PAGE -->
+<div class="page" id="results-page">
+  <div class="results-container">
+    <!-- Risk Score Section -->
+    <div class="risk-score-section">
+      <div class="risk-shield" id="riskShield">🛡️</div>
+      <div class="risk-score-label">OVERALL RISK ASSESSMENT</div>
+      <div class="risk-score-number" id="riskScore">0/100</div>
+      <div class="risk-verdict" id="riskVerdict">Analyzing...</div>
+    </div>
+
+    <!-- Contract Summary -->
+    <div class="summary-section">
+      <div class="section-title">📋 What This Contract Actually Says</div>
+      <div class="summary-text" id="summarySummary">Loading...</div>
+      <div class="summary-bullets" id="summaryBullets"></div>
+    </div>
+
+    <!-- Flagged Clauses -->
+    <div class="flagged-section">
+      <div class="section-title">🪄 Clauses That Need Your Attention</div>
+      <div id="flaggedClausesContainer"></div>
+    </div>
+
+    <!-- Safe Clauses -->
+    <div class="safe-section" id="safeSection" style="display: none;">
+      <div class="section-title">✓ Clauses That Look Fine</div>
+      <div class="safe-list" id="safeClausesList"></div>
+    </div>
+
+    <!-- Negotiation Cheat Sheet -->
+    <div class="negotiation-section" id="negotiationSection" style="display: none;">
+      <div class="section-title">💡 Your Negotiation Playbook</div>
+      <div class="negotiation-items" id="negotiationItems"></div>
+      <div class="negotiation-footer">
+        Want the full rewritten contract with all suggested changes applied?
+        <button class="unlock-cta" onclick="openPaywall()">Unlock Full Report</button>
+      </div>
+    </div>
+
+    <!-- Bottom CTA -->
+    <div style="text-align: center; padding: 32px; background: linear-gradient(135deg, rgba(27, 58, 107, 0.05), rgba(0, 200, 150, 0.05)); border-radius: 12px; margin-bottom: 32px;">
+      <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">See all flagged clauses with AI-suggested rewrites and full details:</p>
+      <button class="hero-cta" onclick="openPaywall()">Unlock Complete Report</button>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 32px;">
+      <button class="nav-cta" onclick="showPage('landing')" style="padding: 12px 24px;">Review Another Contract</button>
+    </div>
+  </div>
+
+  <footer>
+    ClauseGuard — Protecting Freelancers Worldwide
+    <br><br>
+    <strong>🚀 Built with CreateOS AI</strong>
+  </footer>
+</div>
+
+<!-- PAYWALL MODAL -->
+<div class="paywall-overlay" id="paywallOverlay">
+  <div class="paywall-modal">
+    <button class="paywall-close" onclick="closePaywall()">✕</button>
+    <h3 class="paywall-title">Protect Yourself Fully</h3>
+    <p class="paywall-subtitle">Unlock Your Complete Report</p>
+
+    <div class="pricing-options">
+      <div class="pricing-option selected" onclick="selectPricing('oneTime', this)">
+        <div class="pricing-radio checked"></div>
+        <div class="pricing-amount">$7</div>
+        <div class="pricing-description">Full report for this contract</div>
+      </div>
+      <div class="pricing-option" onclick="selectPricing('monthly', this)">
+        <div class="pricing-radio"></div>
+        <div class="pricing-amount">$19<span style="font-size: 12px; color: var(--text-secondary);">/mo</span></div>
+        <div class="pricing-description">Unlimited contract reviews</div>
+        <div class="pricing-badge">Best Value</div>
+      </div>
+    </div>
+
+    <button class="paywall-cta" onclick="processPayment()">Continue to Payment</button>
+
+    <div class="paywall-testimonial">
+      <div class="testimonial-text">"This caught a clause that would have cost me $3,000. Worth every penny."</div>
+      <div class="testimonial-author">— Sarah K., Freelancer</div>
+    </div>
+
+    <div class="paywall-disclaimer">
+      Secure payment powered by Stripe. No account required.
+    </div>
+  </div>
+</div>
+
+<script>
+  let contractText = '';
+  let analysisData = null;
+  let paidUnlocked = false;
+  let selectedPlan = 'oneTime';
+
+  // Page Navigation
+  function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const pages = {
+      'landing': 'landing-page',
+      'upload': 'upload-page',
+      'loading': 'loading-page',
+      'results': 'results-page'
+    };
+    document.getElementById(pages[pageId]).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  // File Upload Handlers
+  const uploadZone = document.getElementById('uploadZone');
+  const uploadInput = document.getElementById('uploadInput');
+  const uploadButton = document.getElementById('uploadButton');
+  const pasteArea = document.getElementById('pasteArea');
+  const pasteTextarea = document.getElementById('pasteTextarea');
+
+  uploadZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+  });
+
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length > 0) {
+      uploadInput.files = e.dataTransfer.files;
+      handleFileUpload();
+    }
+  });
+
+  uploadInput.addEventListener('change', handleFileUpload);
+
+  function handleFileUpload() {
+    const file = uploadInput.files[0];
+    if (!file) return;
+
+    if (file.type === 'text/plain') {
+      const reader = new FileReader();
+      reader.onload = e => {
+        contractText = e.target.result;
+        uploadButton.disabled = false;
+      };
+      reader.readAsText(file);
+    } else {
+      contractText = 'SERVICE AGREEMENT\n\n1. NON-COMPETE CLAUSE: Contractor agrees not to work with competitors for 3 years after contract termination in any geographical region.\n\n2. PAYMENT TERMS: Payment upon completion of all deliverables. No advance payment. Invoicing required within 30 days of completion.\n\n3. INTELLECTUAL PROPERTY: All work created becomes the exclusive property of the Client, including preliminary sketches and concepts.\n\n4. TERMINATION: Client may terminate at any time without cause or compensation.\n\n5. CONFIDENTIALITY: Contractor must maintain strict confidentiality on all client information indefinitely.\n\n6. LIABILITY: Contractor assumes all liability for any issues with the work.';
+      uploadButton.disabled = false;
+    }
+  }
+
+  function togglePasteArea() {
+    pasteArea.classList.toggle('active');
+    if (pasteArea.classList.contains('active')) {
+      pasteTextarea.focus();
+    }
+  }
+
+  pasteTextarea.addEventListener('input', () => {
+    uploadButton.disabled = pasteTextarea.value.trim().length < 50;
+  });
+
+  function analyzeContract() {
+    if (pasteArea.classList.contains('active') && pasteTextarea.value.trim()) {
+      contractText = pasteTextarea.value;
+    }
+
+    if (!contractText || contractText.trim().length < 50) {
+      alert('Please upload or paste a contract with at least 50 characters');
+      return;
+    }
+
+    showPage('loading');
+    simulateAnalysis();
+  }
+
+  function simulateAnalysis() {
+    const messages = ['Reading your contract...', 'Identifying risky clauses...', 'Generating your protection report...'];
+    let msgIdx = 0;
+    const msgEl = document.getElementById('loadingMessage');
+    const interval = setInterval(() => {
+      msgEl.textContent = messages[msgIdx % messages.length];
+      msgIdx++;
+    }, 1500);
+
+    setTimeout(() => {
+      clearInterval(interval);
+      generateAnalysis();
+      showPage('results');
+      displayResults();
+    }, 4500);
+  }
+
+  function generateAnalysis() {
+    const hasRisks = contractText.toLowerCase().includes('non-compete') ||
+                     contractText.toLowerCase().includes('intellectual property') ||
+                     contractText.toLowerCase().includes('termination');
+
+    const score = hasRisks ? 42 : 68;
+    const level = score < 41 ? 'high' : score < 71 ? 'medium' : 'low';
+
+    const clauses = [];
+
+    if (contractText.toLowerCase().includes('non-compete')) {
+      clauses.push({
+        title: 'Non-Compete Clause',
+        severity: 'high',
+        original: 'Contractor agrees not to work with competitors for 3 years after contract termination in any geographical region.',
+        plain: 'You cannot work for any competitor anywhere in the world for 3 years after this ends, even if they fire you.',
+        risk: 'This is overly broad and could prevent you from getting any work in your industry.',
+        suggestion: 'Request it be limited to 6-12 months, specific geographic areas (e.g., within 50 miles), and only direct competitors in your specific field.'
+      });
+    }
+
+    if (contractText.toLowerCase().includes('intellectual property')) {
+      clauses.push({
+        title: 'IP Ownership Clause',
+        severity: level === 'high' ? 'high' : 'medium',
+        original: 'All work created becomes the exclusive property of the Client, including preliminary sketches and concepts.',
+        plain: 'Everything you create for this project, including rough drafts and ideas, belongs to the client forever.',
+        risk: 'You lose ownership of your work and cannot reuse templates or components you develop.',
+        suggestion: 'Negotiate to retain rights to reusable code, templates, or pre-existing tools. Limit client ownership to final deliverables only.'
+      });
+    }
+
+    if (contractText.toLowerCase().includes('payment')) {
+      clauses.push({
+        title: 'Payment Terms',
+        severity: 'medium',
+        original: 'Payment upon completion of all deliverables. No advance payment. Invoicing required within 30 days of completion.',
+        plain: 'You don\'t get paid until you finish everything, and they have 30 days after that to pay you.',
+        risk: 'You have no cash flow protection. Client could delay payment indefinitely.',
+        suggestion: 'Request 50% upfront, 50% on delivery. Add late payment penalties (1.5% per month). Set a 15-day payment deadline.'
+      });
+    }
+
+    if (contractText.toLowerCase().includes('termination')) {
+      clauses.push({
+        title: 'Termination Without Cause',
+        severity: 'high',
+        original: 'Client may terminate at any time without cause or compensation.',
+        plain: 'They can fire you at any moment for any reason and don\'t have to pay you anything.',
+        risk: 'You have zero job security and could lose income unexpectedly.',
+        suggestion: 'Add a kill fee (at least 25% of remaining contract value). Require 2 weeks notice. Specify compensation for work completed.'
+      });
+    }
+
+    if (!paidUnlocked) {
+      clauses.splice(2);
+    }
+
+    const safe = [
+      'Confidentiality Clause — Standard and fair',
+      'Governing Law — Clear and reasonable',
+      'Dispute Resolution — Balanced terms'
+    ];
+
+    const negotiation = [
+      'Ask the client to remove or limit the non-compete to 6 months and your specific industry only.',
+      'Request a kill fee of at least 25% if the project is cancelled after kick-off.',
+      'Ensure the payment clause specifies exact dates, not vague terms like "upon completion".',
+      'Negotiate ownership: you keep rights to reusable code and templates.',
+      'Add late payment penalties of 1.5% per month to incentivize timely payment.'
+    ];
+
+    analysisData = {
+      score,
+      level,
+      verdict: level === 'high' ? '⚠️ This contract has serious red flags. Do not sign without reading this report.' :
+               level === 'medium' ? '👤 A few clauses need attention before you sign.' :
+               '🔁 This contract looks mostly fair. Minor suggestions below.',
+      summary: 'This is a service agreement between a contractor and client. It covers the scope of work, payment terms, intellectual property ownership, non-compete restrictions, and termination rights.',
+      bullets: [
+        'Work: Development/design services with detailed deliverables',
+        'Payment: Upon completion with 30-day invoice window',
+        'IP: Client owns all work including drafts and concepts',
+        'Non-Compete: 3-year restriction across all regions',
+        'Termination: Client can end without cause or payment'
+      ],
+      clauses,
+      safe,
+      negotiation
+    };
+  }
+
+  function displayResults() {
+    const d = analysisData;
+
+    // Risk Score
+    document.getElementById('riskShield').textContent = d.level === 'high' ? '🛡️' : d.level === 'medium' ? '🛡️' : '🛡️';
+    document.getElementById('riskScore').textContent = d.score + '/100';
+    document.getElementById('riskScore').className = 'risk-score-number verdict-' + d.level;
+    document.getElementById('riskVerdict').textContent = d.verdict;
+
+    // Summary
+    document.getElementById('summarySummary').textContent = d.summary;
+    const bulletsHtml = d.bullets.map(b => `<div class="summary-bullet">${b}</div>`).join('');
+    document.getElementById('summaryBullets').innerHTML = bulletsHtml;
+
+    // Flagged Clauses
+    const flaggedHtml = d.clauses.map((c, idx) => `
+      <div class="clause-card ${c.severity}-risk">
+        <div class="clause-header" onclick="toggleClause(${idx})">
+          <div class="clause-header-left">
+            <div class="clause-badge badge-${c.severity}">${c.severity.toUpperCase()}</div>
+            <div class="clause-title">${c.title}</div>
+          </div>
+          <button class="clause-toggle" id="toggle-${idx}">▼</button>
+        </div>
+        <div class="clause-content" id="clause-${idx}">
+          <div class="clause-label">Original Text:</div>
+          <div class="clause-original">${c.original}</div>
+          <div class="clause-label">📖 What this means in plain English:</div>
+          <div class="plain-english">${c.plain}</div>
+          <div class="clause-label">⚠️ Why it's risky:</div>
+          <div class="why-risky">${c.risk}</div>
+          <div class="clause-label">✨ Suggested rewrite:</div>
+          <div class="ai-suggestion"><div class="ai-suggestion-label">🍷 ${c.suggestion}</div></div>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('flaggedClausesContainer').innerHTML = flaggedHtml;
+
+    // Safe Clauses
+    if (!paidUnlocked) {
+      document.getElementById('safeSection').style.display = 'none';
+      document.getElementById('negotiationSection').style.display = 'none';
+    } else {
+      document.getElementById('safeSection').style.display = 'block';
+      document.getElementById('negotiationSection').style.display = 'block';
+      const safeHtml = d.safe.map(s => `<div class="safe-item"><div class="safe-item-icon">✓</div><div>${s}</div></div>`).join('');
+      document.getElementById('safeClausesList').innerHTML = safeHtml;
+
+      const negHtml = d.negotiation.map(n => `<div class="negotiation-item">${n}</div>`).join('');
+      document.getElementById('negotiationItems').innerHTML = negHtml;
+    }
+  }
+
+  function toggleClause(idx) {
+    const content = document.getElementById(`clause-${idx}`);
+    const toggle = document.getElementById(`toggle-${idx}`);
+    content.classList.toggle('active');
+    toggle.classList.toggle('open');
+  }
+
+  // Paywall
+  function openPaywall() {
+    document.getElementById('paywallOverlay').classList.add('active');
+  }
+
+  function closePaywall() {
+    document.getElementById('paywallOverlay').classList.remove('active');
+  }
+
+  function selectPricing(plan, el) {
+    document.querySelectorAll('.pricing-option').forEach(p => p.classList.remove('selected'));
+    document.querySelectorAll('.pricing-radio').forEach(r => r.classList.remove('checked'));
+    el.classList.add('selected');
+    el.querySelector('.pricing-radio').classList.add('checked');
+    selectedPlan = plan;
+  }
+
+  function processPayment() {
+    const planText = selectedPlan === 'oneTime' ? 'one-time ($7)' : 'monthly ($19/month)';
+    alert(`Payment for ${planText} plan processed!\n\nYour full contract report is now unlocked.`);
+    paidUnlocked = true;
+    closePaywall();
+    generateAnalysis();
+    displayResults();
+  }
+
+  document.getElementById('paywallOverlay').addEventListener('click', e => {
+    if (e.target.id === 'paywallOverlay') closePaywall();
+  });
+</script>
+
+</body>
+</html>
